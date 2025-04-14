@@ -103,7 +103,7 @@ const ArticleForm = ({ onSubmit, initialData = {}, isSubmitting = false }) => {
         value={formData.title}
         onChange={handleChange}
         placeholder="Enter article title..."
-        className="w-full p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-sm"
+        className="w-full p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-sm text-gray-700"
       />
       {errors.title && <p className="text-red-500 text-sm">{errors.title}</p>}
 
@@ -185,7 +185,7 @@ const ArticleForm = ({ onSubmit, initialData = {}, isSubmitting = false }) => {
         value={formData.youtubeLink}
         onChange={handleChange}
         placeholder="Enter YouTube link..."
-        className="w-full p-3 bg-red-100 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-sm"
+        className="w-full p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-sm text-gray-700"
       />
 
       {/* Content Input */}
@@ -195,7 +195,7 @@ const ArticleForm = ({ onSubmit, initialData = {}, isSubmitting = false }) => {
         onChange={handleChange}
         placeholder="Write your article here..."
         rows="20"
-        className="w-full p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-sm"
+        className="w-full p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-sm text-gray-700"
       />
       {errors.content && <p className="text-red-500 text-sm">{errors.content}</p>}
 
@@ -208,7 +208,7 @@ const ArticleForm = ({ onSubmit, initialData = {}, isSubmitting = false }) => {
             name="language"
             value={formData.language}
             onChange={handleChange}
-            className="w-full p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-sm"
+            className="w-full p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-sm text-gray-700"
           >
             <option value="english">English</option>
             <option value="urdu">Urdu</option>
@@ -223,7 +223,7 @@ const ArticleForm = ({ onSubmit, initialData = {}, isSubmitting = false }) => {
             name="publishDate"
             value={formData.publishDate}
             onChange={handleChange}
-            className="w-full p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-sm"
+            className="w-full p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-sm text-gray-700"
           />
         </div>
 
@@ -234,7 +234,7 @@ const ArticleForm = ({ onSubmit, initialData = {}, isSubmitting = false }) => {
             name="status"
             value={formData.status}
             onChange={handleChange}
-            className="w-full p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-sm"
+            className="w-full p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-sm text-gray-700"
           >
             <option value="Draft">Draft</option>
             <option value="Published">Published</option>
