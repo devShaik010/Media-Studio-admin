@@ -91,50 +91,48 @@ const ArticleForm = ({ onSubmit, initialData = {}, isSubmitting: parentIsSubmitt
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (validateForm()) {
-      try {
-        setIsSubmitting(true);
-        
-        // Prepare the article data
-        const articleData = {
-          title: formData.title,
-          content: formData.content,
-          youtubeLink: formData.youtubeLink,
-          language: formData.language,
-          publishDate: formData.publishDate,
-          status: formData.status,
-          thumbnail: formData.thumbnail,
-          mainImage: formData.mainImage
-        };
+    if (!validateForm()) return;
 
-        // Call Supabase service to add article
-        const articleId = await addArticle(articleData);
+    try {
+      setIsSubmitting(true);
+      setErrors({});
 
-        // Reset form and show success message
-        setFormData({
-          title: '',
-          content: '',
-          youtubeLink: '',
-          language: 'english',
-          publishDate: new Date().toISOString().split('T')[0],
-          status: 'Draft',
-          thumbnail: null,
-          mainImage: null
-        });
-        setPreviews({ thumbnail: null, mainImage: null });
-        
-        // Call parent's onSubmit with the new article ID
-        onSubmit({ ...articleData, id: articleId });
-        
-      } catch (error) {
-        console.error('Error submitting article:', error);
-        setErrors(prev => ({
-          ...prev,
-          submit: 'Error submitting article. Please try again.'
-        }));
-      } finally {
-        setIsSubmitting(false);
-      }
+      const articleData = {
+        title: formData.title.trim(),
+        content: formData.content.trim(),
+        youtubeLink: formData.youtubeLink.trim(),
+        language: formData.language,
+        publishDate: formData.publishDate,
+        status: formData.status,
+        thumbnail: formData.thumbnail,
+        mainImage: formData.mainImage
+      };
+
+      const result = await addArticle(articleData);
+
+      // Reset form
+      setFormData({
+        title: '',
+        content: '',
+        youtubeLink: '',
+        language: 'english',
+        publishDate: new Date().toISOString().split('T')[0],
+        status: 'Draft',
+        thumbnail: null,
+        mainImage: null
+      });
+      setPreviews({ thumbnail: null, mainImage: null });
+
+      // Notify parent
+      onSubmit(result);
+
+    } catch (error) {
+      setErrors(prev => ({
+        ...prev,
+        submit: error.message || 'Error submitting article. Please try again.'
+      }));
+    } finally {
+      setIsSubmitting(false);
     }
   };
 

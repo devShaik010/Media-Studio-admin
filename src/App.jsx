@@ -7,17 +7,13 @@ import Layout from './components/Layout';
 import Login from './components/Login';
 import ErrorBoundary from './components/ErrorBoundary';
 import LoadingSpinner from './components/LoadingSpinner';
+import { supabase } from './supabase/client';
 
 const App = () => {
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoggedIn, setIsLoggedIn] = useState(true); // Always logged in for public access
+  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
-    // Check for existing auth token
-    const token = localStorage.getItem('authToken');
-    if (token) {
-      setIsLoggedIn(true);
-    }
     setIsLoading(false);
   }, []);
 
