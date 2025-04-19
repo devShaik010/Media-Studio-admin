@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import ArticleForm from '../components/ArticleForm';
+import LoadingSpinner from '../components/LoadingSpinner'; // Fixed import
 
 const UploadForm = () => {
   const navigate = useNavigate();
@@ -9,11 +10,7 @@ const UploadForm = () => {
   const handleSubmit = async (formData) => {
     try {
       setIsSubmitting(true);
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      console.log('New article data:', formData);
-      
-      // Navigate to manage page after successful submission
+      // ArticleForm now handles the Supabase upload
       navigate('/manage');
     } catch (error) {
       console.error('Error submitting article:', error);
@@ -23,7 +20,8 @@ const UploadForm = () => {
   };
 
   return (
-    <div className="container mx-auto p-4">
+    <div className="p-4">
+      {isSubmitting && <LoadingSpinner />}
       <ArticleForm 
         onSubmit={handleSubmit} 
         isSubmitting={isSubmitting}

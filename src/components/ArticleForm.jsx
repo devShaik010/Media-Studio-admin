@@ -1,10 +1,12 @@
 import React, { useState, useCallback } from 'react';
 import PropTypes from 'prop-types';
 import { useDropzone } from 'react-dropzone';
+import { addArticle } from '../supabase/services';
 
 const MAX_FILE_SIZE = 2 * 1024 * 1024; // 2MB
 
-const ArticleForm = ({ onSubmit, initialData = {}, isSubmitting = false }) => {
+const ArticleForm = ({ onSubmit, initialData = {}, isSubmitting: parentIsSubmitting = false }) => {
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [formData, setFormData] = useState({
     title: initialData.title || '',
     youtubeLink: initialData.youtubeLink || '',
@@ -87,10 +89,52 @@ const ArticleForm = ({ onSubmit, initialData = {}, isSubmitting = false }) => {
     };
   }, []);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (validateForm()) {
-      onSubmit(formData);
+      try {
+        setIsSubmitting(true);
+        
+        // Prepare the article data
+        const articleData = {
+          title: formData.title,
+          content: formData.content,
+          youtubeLink: formData.youtubeLink,
+          language: formData.language,
+          publishDate: formData.publishDate,
+          status: formData.status,
+          thumbnail: formData.thumbnail,
+          mainImage: formData.mainImage
+        };
+
+        // Call Supabase service to add article
+        const articleId = await addArticle(articleData);
+
+        // Reset form and show success message
+        setFormData({
+          title: '',
+          content: '',
+          youtubeLink: '',
+          language: 'english',
+          publishDate: new Date().toISOString().split('T')[0],
+          status: 'Draft',
+          thumbnail: null,
+          mainImage: null
+        });
+        setPreviews({ thumbnail: null, mainImage: null });
+        
+        // Call parent's onSubmit with the new article ID
+        onSubmit({ ...articleData, id: articleId });
+        
+      } catch (error) {
+        console.error('Error submitting article:', error);
+        setErrors(prev => ({
+          ...prev,
+          submit: 'Error submitting article. Please try again.'
+        }));
+      } finally {
+        setIsSubmitting(false);
+      }
     }
   };
 
