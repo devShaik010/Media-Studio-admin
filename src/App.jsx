@@ -4,6 +4,8 @@ import ErrorBoundary from './components/ErrorBoundary';
 import LoadingSpinner from './components/LoadingSpinner';
 import { AuthProvider } from './context/AuthContext';
 import AppRoutes from './components/AppRoutes';
+import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 const App = () => {
   return (
@@ -15,6 +17,18 @@ const App = () => {
           </Suspense>
         </AuthProvider>
       </Router>
+      <ToastContainer
+        position="top-right"
+        autoClose={3000}
+        hideProgressBar={false}
+        newestOnTop
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        theme="light"
+      />
     </ErrorBoundary>
   );
 };

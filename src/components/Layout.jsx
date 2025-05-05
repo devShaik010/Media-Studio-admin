@@ -7,10 +7,12 @@ const Layout = () => {
   const { user } = useAuth();
 
   return (
-    <div className="min-h-screen bg-gray-100">
+    <div className="min-h-screen bg-white">
       <Navbar user={user} />
-      <main className="container mx-auto px-4 py-8">
-        <Outlet />
+      <main className="container mx-auto px-4 py-8 font-serif">
+        <div className="max-w-screen-xl mx-auto">
+          <Outlet />
+        </div>
       </main>
     </div>
   );

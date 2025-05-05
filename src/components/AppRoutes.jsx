@@ -5,6 +5,7 @@ import Login from './Login';
 import Dashboard from '../pages/Dashboard';
 import ManageArticles from '../pages/ManageArticles';
 import CreateArticle from '../pages/CreateArticle';
+import EditArticle from '../pages/EditArticle';
 
 const AppRoutes = () => {
   const { user, loading } = useAuth();
@@ -33,6 +34,10 @@ const AppRoutes = () => {
         <Route
           path="/create"
           element={user ? <CreateArticle /> : <Navigate to="/login" />}
+        />
+        <Route
+          path="/edit/:id"
+          element={user ? <EditArticle /> : <Navigate to="/login" />}
         />
       </Route>
 

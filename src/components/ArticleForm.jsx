@@ -1,4 +1,5 @@
 import React, { useState, useCallback } from 'react';
+import { toast } from 'react-toastify';
 import PropTypes from 'prop-types';
 import { useDropzone } from 'react-dropzone';
 import { addArticle } from '../supabase/services';
@@ -22,6 +23,7 @@ const ArticleForm = ({ onSubmit, initialData = {}, isSubmitting: parentIsSubmitt
     mainImage: null,
   });
   const [errors, setErrors] = useState({});
+  const [uploadProgress, setUploadProgress] = useState(0);
 
   const validateForm = () => {
     const newErrors = {};
@@ -91,11 +93,26 @@ const ArticleForm = ({ onSubmit, initialData = {}, isSubmitting: parentIsSubmitt
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!validateForm()) return;
+    if (!validateForm()) {
+      toast.error('Please fill in all required fields');
+      return;
+    }
 
     try {
       setIsSubmitting(true);
       setErrors({});
+      setUploadProgress(0);
+
+      // Simulate upload progress
+      const progressInterval = setInterval(() => {
+        setUploadProgress(prev => {
+          if (prev >= 90) {
+            clearInterval(progressInterval);
+            return prev;
+          }
+          return prev + 10;
+        });
+      }, 500);
 
       const articleData = {
         title: formData.title.trim(),
@@ -109,6 +126,11 @@ const ArticleForm = ({ onSubmit, initialData = {}, isSubmitting: parentIsSubmitt
       };
 
       const result = await addArticle(articleData);
+
+      // Complete progress and show success
+      setUploadProgress(100);
+      clearInterval(progressInterval);
+      toast.success('Article uploaded successfully!');
 
       // Reset form
       setFormData({
@@ -127,6 +149,8 @@ const ArticleForm = ({ onSubmit, initialData = {}, isSubmitting: parentIsSubmitt
       onSubmit(result);
 
     } catch (error) {
+      setUploadProgress(0);
+      toast.error(error.message || 'Error uploading article');
       setErrors(prev => ({
         ...prev,
         submit: error.message || 'Error submitting article. Please try again.'
@@ -137,7 +161,17 @@ const ArticleForm = ({ onSubmit, initialData = {}, isSubmitting: parentIsSubmitt
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4">
+    <form onSubmit={handleSubmit} className="space-y-6 font-['Poppins']">
+      {/* Show upload progress if uploading */}
+      {uploadProgress > 0 && (
+        <div className="w-full bg-gray-200 rounded-full h-2 mb-4">
+          <div
+            className="bg-blue-600 h-2 rounded-full transition-all duration-300"
+            style={{ width: `${uploadProgress}%` }}
+          />
+        </div>
+      )}
+
       {/* Title Input */}
       <input
         type="text"
@@ -145,7 +179,7 @@ const ArticleForm = ({ onSubmit, initialData = {}, isSubmitting: parentIsSubmitt
         value={formData.title}
         onChange={handleChange}
         placeholder="Enter article title..."
-        className="w-full p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-sm text-gray-700"
+        className="w-full p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 border text-gray-700"
       />
       {errors.title && <p className="text-red-500 text-sm">{errors.title}</p>}
 
@@ -227,7 +261,7 @@ const ArticleForm = ({ onSubmit, initialData = {}, isSubmitting: parentIsSubmitt
         value={formData.youtubeLink}
         onChange={handleChange}
         placeholder="Enter YouTube link..."
-        className="w-full p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-sm text-gray-700"
+        className="w-full p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 shadow-sm text-gray-700 border-2 border-red-300"
       />
 
       {/* Content Input */}

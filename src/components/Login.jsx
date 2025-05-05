@@ -1,48 +1,41 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { 
-  TextField, 
-  Button, 
-  Box, 
-  Typography, 
-  Paper,
-  Divider,
-  InputAdornment,
-  IconButton
-} from '@mui/material';
-import { 
-  Google as GoogleIcon,
-  Visibility,
-  VisibilityOff,
-  Person as PersonIcon,
-  Lock as LockIcon
-} from '@mui/icons-material';
+import { FcGoogle } from 'react-icons/fc';
+import { FiUser, FiLock } from 'react-icons/fi';
 import { supabase } from '../supabase/client';
 
 const Login = ({ onLogin }) => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
-  const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
 
-  const handleSubmit = (event) => {
-    event.preventDefault();
-    if (username === 'admin' && password === 'admin') {
-      onLogin();
-      navigate('/');
-    } else {
-      setError('Invalid username or password');
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setIsLoading(true);
+    setError('');
+
+    try {
+      if (username === 'admin' && password === 'admin') {
+        onLogin();
+        navigate('/');
+      } else {
+        setError('Invalid credentials');
+      }
+    } catch (err) {
+      setError('Login failed. Please try again.');
+    } finally {
+      setIsLoading(false);
     }
   };
 
   const handleGoogleLogin = async () => {
     try {
       setIsLoading(true);
-      setError(null);
+      setError('');
       
-      const { data, error } = await supabase.auth.signInWithOAuth({
+      const { error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
           redirectTo: `${window.location.origin}/dashboard`
@@ -50,11 +43,8 @@ const Login = ({ onLogin }) => {
       });
 
       if (error) throw error;
-      
-      if (data) navigate('/dashboard');
-      
     } catch (err) {
-      setError('Failed to sign in with Google');
+      setError('Google sign in failed');
       console.error('Login error:', err);
     } finally {
       setIsLoading(false);
@@ -62,171 +52,92 @@ const Login = ({ onLogin }) => {
   };
 
   return (
-    <Box
-      sx={{
-        minHeight: '100vh',
-        display: 'flex',
-        justifyContent: 'center',
-        alignItems: 'center',
-        background: 'linear-gradient(145deg, #f6f8fc 0%, #f0f4f8 100%)'
-      }}
-    >
-      <Paper
-        elevation={4}
-        sx={{
-          p: 4,
-          width: '100%',
-          maxWidth: 400,
-          borderRadius: 3,
-          backdropFilter: 'blur(10px)',
-          background: 'rgba(255, 255, 255, 0.9)',
-          boxShadow: '0 8px 32px rgba(0, 0, 0, 0.08)'
-        }}
-      >
-        <Typography 
-          variant="h4" 
-          align="center" 
-          sx={{ 
-            mb: 4, 
-            fontWeight: 600,
-            background: 'linear-gradient(45deg, #1a1a1a, #4a4a4a)',
-            backgroundClip: 'text',
-            WebkitBackgroundClip: 'text',
-            WebkitTextFillColor: 'transparent'
-          }}
-        >
-          Welcome Back
-        </Typography>
+    <div className="min-h-screen flex items-center justify-center bg-[var(--background-color)]">
+      <div className="w-full max-w-md p-6">
+        <div className="bg-white rounded-lg border border-[var(--border-color)] p-8">
+          <div className="text-center mb-8">
+            <h1 className="text-2xl font-semibold text-[var(--primary-color)] mb-2">
+              Media Focus Point
+            </h1>
+            <p className="text-sm text-gray-600">
+              Sign in to your account
+            </p>
+          </div>
 
-        {error && (
-          <Typography 
-            color="error" 
-            align="center" 
-            sx={{ 
-              mb: 2,
-              p: 1.5,
-              borderRadius: 1,
-              bgcolor: 'error.light',
-              color: 'error.dark',
-              fontSize: '0.875rem'
-            }}
-          >
-            {error}
-          </Typography>
-        )}
+          {error && (
+            <div className="mb-6 p-4 bg-red-50 border border-red-100 rounded-lg">
+              <p className="text-sm text-red-600">{error}</p>
+            </div>
+          )}
 
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <TextField
-            fullWidth
-            placeholder="Username"
-            value={username}
-            onChange={(e) => setUsername(e.target.value)}
-            required
-            variant="outlined"
-            sx={{
-              mb: 2,
-              '& .MuiOutlinedInput-root': {
-                borderRadius: 2,
-                bgcolor: 'rgba(255, 255, 255, 0.9)'
-              }
-            }}
-            InputProps={{
-              startAdornment: (
-                <InputAdornment position="start">
-                  <PersonIcon sx={{ color: 'text.secondary' }} />
-                </InputAdornment>
-              )
-            }}
-          />
+          <form onSubmit={handleSubmit} className="space-y-6">
+            <div>
+              <div className="relative">
+                <FiUser className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+                <input
+                  type="text"
+                  value={username}
+                  onChange={(e) => setUsername(e.target.value)}
+                  placeholder="Username"
+                  className="w-full pl-10 pr-4 py-2.5 border border-[var(--border-color)] 
+                           rounded-lg focus:outline-none focus:border-[var(--primary-color)]
+                           text-gray-900 placeholder:text-gray-400"
+                  required
+                />
+              </div>
+            </div>
 
-          <TextField
-            fullWidth
-            type={showPassword ? 'text' : 'password'}
-            placeholder="Password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            required
-            variant="outlined"
-            sx={{
-              mb: 3,
-              '& .MuiOutlinedInput-root': {
-                borderRadius: 2,
-                bgcolor: 'rgba(255, 255, 255, 0.9)'
-              }
-            }}
-            InputProps={{
-              startAdornment: (
-                <InputAdornment position="start">
-                  <LockIcon sx={{ color: 'text.secondary' }} />
-                </InputAdornment>
-              ),
-              endAdornment: (
-                <InputAdornment position="end">
-                  <IconButton
-                    onClick={() => setShowPassword(!showPassword)}
-                    edge="end"
-                  >
-                    {showPassword ? <VisibilityOff /> : <Visibility />}
-                  </IconButton>
-                </InputAdornment>
-              )
-            }}
-          />
+            <div>
+              <div className="relative">
+                <FiLock className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+                <input
+                  type="password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  placeholder="Password"
+                  className="w-full pl-10 pr-4 py-2.5 border border-[var(--border-color)] 
+                           rounded-lg focus:outline-none focus:border-[var(--primary-color)]
+                           text-gray-900 placeholder:text-gray-400"
+                  required
+                />
+              </div>
+            </div>
 
-          <Button
-            type="submit"
-            fullWidth
-            sx={{
-              py: 1.5,
-              mb: 2,
-              bgcolor: 'black',
-              color: 'white',
-              borderRadius: 2,
-              textTransform: 'none',
-              fontSize: '1rem',
-              fontWeight: 500,
-              boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
-              '&:hover': {
-                bgcolor: 'grey.900',
-                boxShadow: '0 6px 16px rgba(0,0,0,0.2)'
-              }
-            }}
-          >
-            Sign In
-          </Button>
+            <button
+              type="submit"
+              disabled={isLoading}
+              className="w-full bg-[var(--primary-color)] text-white py-2.5 rounded-lg
+                       font-medium hover:bg-[var(--primary-hover)] transition-colors
+                       disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {isLoading ? 'Signing in...' : 'Sign in'}
+            </button>
+          </form>
 
-          <Divider sx={{ my: 3 }}>
-            <Typography color="text.secondary" variant="body2">
-              or continue with
-            </Typography>
-          </Divider>
+          <div className="mt-6">
+            <div className="relative">
+              <div className="absolute inset-0 flex items-center">
+                <div className="w-full border-t border-[var(--border-color)]"></div>
+              </div>
+              <div className="relative flex justify-center text-sm">
+                <span className="px-2 bg-white text-gray-500">Or continue with</span>
+              </div>
+            </div>
 
-          <Button
-            fullWidth
-            variant="outlined"
-            startIcon={<GoogleIcon />}
-            onClick={handleGoogleLogin}
-            disabled={isLoading}
-            sx={{
-              py: 1.5,
-              color: 'text.primary',
-              borderColor: 'grey.300',
-              borderRadius: 2,
-              textTransform: 'none',
-              fontSize: '1rem',
-              fontWeight: 500,
-              bgcolor: 'white',
-              '&:hover': {
-                bgcolor: 'grey.50',
-                borderColor: 'grey.400'
-              }
-            }}
-          >
-            {isLoading ? 'Loading...' : 'Sign in with Google'}
-          </Button>
-        </form>
-      </Paper>
-    </Box>
+            <button
+              onClick={handleGoogleLogin}
+              disabled={isLoading}
+              className="mt-6 w-full flex items-center justify-center gap-3 px-4 py-2.5
+                       border border-[var(--border-color)] rounded-lg text-gray-700
+                       hover:bg-gray-50 font-medium transition-colors"
+            >
+              <FcGoogle className="w-5 h-5" />
+              Sign in with Google
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
   );
 };
 
