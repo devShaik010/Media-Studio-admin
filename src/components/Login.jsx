@@ -17,12 +17,14 @@ import {
   Person as PersonIcon,
   Lock as LockIcon
 } from '@mui/icons-material';
+import { supabase } from '../supabase/client';
 
 const Login = ({ onLogin }) => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [showPassword, setShowPassword] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
 
   const handleSubmit = (event) => {
@@ -32,6 +34,30 @@ const Login = ({ onLogin }) => {
       navigate('/');
     } else {
       setError('Invalid username or password');
+    }
+  };
+
+  const handleGoogleLogin = async () => {
+    try {
+      setIsLoading(true);
+      setError(null);
+      
+      const { data, error } = await supabase.auth.signInWithOAuth({
+        provider: 'google',
+        options: {
+          redirectTo: `${window.location.origin}/dashboard`
+        }
+      });
+
+      if (error) throw error;
+      
+      if (data) navigate('/dashboard');
+      
+    } catch (err) {
+      setError('Failed to sign in with Google');
+      console.error('Login error:', err);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -179,7 +205,8 @@ const Login = ({ onLogin }) => {
             fullWidth
             variant="outlined"
             startIcon={<GoogleIcon />}
-            onClick={() => console.log('Google login')}
+            onClick={handleGoogleLogin}
+            disabled={isLoading}
             sx={{
               py: 1.5,
               color: 'text.primary',
@@ -195,7 +222,7 @@ const Login = ({ onLogin }) => {
               }
             }}
           >
-            Sign in with Google
+            {isLoading ? 'Loading...' : 'Sign in with Google'}
           </Button>
         </form>
       </Paper>

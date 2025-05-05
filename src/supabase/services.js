@@ -76,6 +76,26 @@ export const getArticles = async () => {
 
 export const deleteArticle = async (id) => {
   try {
+    // First get the article to get image URLs
+    const { data: article, error: fetchError } = await supabase
+      .from('articles')
+      .select('thumbnail_url, main_image_url')
+      .eq('id', id)
+      .single()
+
+    if (fetchError) throw fetchError
+
+    // Delete images from storage
+    if (article.thumbnail_url) {
+      const thumbnailPath = article.thumbnail_url.split('/').pop()
+      await supabase.storage.from(BUCKET_NAME).remove([thumbnailPath])
+    }
+    if (article.main_image_url) {
+      const mainImagePath = article.main_image_url.split('/').pop()
+      await supabase.storage.from(BUCKET_NAME).remove([mainImagePath])
+    }
+
+    // Delete the article
     const { error } = await supabase
       .from('articles')
       .delete()
