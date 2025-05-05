@@ -35,14 +35,23 @@ const Login = ({ onLogin }) => {
       setIsLoading(true);
       setError('');
       
-      const { error } = await supabase.auth.signInWithOAuth({
+      const { data, error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
-          redirectTo: `${import.meta.env.VITE_APP_URL}/dashboard`
+          redirectTo: 'https://media-studio-admin.onrender.com',
+          queryParams: {
+            access_type: 'offline',
+            prompt: 'consent'
+          }
         }
       });
 
       if (error) throw error;
+      
+      if (data) {
+        navigate('/dashboard');
+      }
+
     } catch (err) {
       setError('Google sign in failed');
       console.error('Login error:', err);
