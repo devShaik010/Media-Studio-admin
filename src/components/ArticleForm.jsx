@@ -180,6 +180,7 @@ const ArticleForm = ({ onSubmit, initialData = {}, isSubmitting: parentIsSubmitt
         onChange={handleChange}
         placeholder="Enter article title..."
         className="w-full p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 border text-gray-700"
+        dir={formData.language === 'urdu' ? 'rtl' : 'ltr'}
       />
       {errors.title && <p className="text-red-500 text-sm">{errors.title}</p>}
 
@@ -272,6 +273,7 @@ const ArticleForm = ({ onSubmit, initialData = {}, isSubmitting: parentIsSubmitt
         placeholder="Write your article here..."
         rows="20"
         className="w-full p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-sm text-gray-700"
+        dir={formData.language === 'urdu' ? 'rtl' : 'ltr'}
       />
       {errors.content && <p className="text-red-500 text-sm">{errors.content}</p>}
 
