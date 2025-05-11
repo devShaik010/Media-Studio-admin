@@ -4,8 +4,8 @@ import { FcGoogle } from 'react-icons/fc';
 import { FiUser, FiLock } from 'react-icons/fi';
 import { supabase } from '../supabase/client';
 
-const Login = ({ onLogin }) => {
-  const [username, setUsername] = useState('');
+const Login = () => {
+  const [usernameInput, setUsernameInput] = useState(''); // To capture username or email
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -16,15 +16,31 @@ const Login = ({ onLogin }) => {
     setIsLoading(true);
     setError('');
 
+    let emailToSubmit;
+    if (usernameInput.toLowerCase() === 'mfpadmin') {
+      emailToSubmit = 'mediafocuspoint1@gmail.com';
+    } else {
+      // Assume it's an email if not 'mfpadmin'
+      emailToSubmit = usernameInput; 
+    }
+
     try {
-      if (username === 'admin' && password === 'admin') {
-        onLogin();
-        navigate('/');
-      } else {
-        setError('Invalid credentials');
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email: emailToSubmit,
+        password: password,
+      });
+
+      if (error) {
+        setError(error.message || 'Invalid credentials');
+        throw error;
       }
+      
+      // AuthContext will handle navigation if login is successful
+      // navigate('/'); 
+
     } catch (err) {
-      setError('Login failed. Please try again.');
+      if (!error) setError('Login failed. Please try again.');
+      console.error('Login error:', err);
     } finally {
       setIsLoading(false);
     }
@@ -38,7 +54,8 @@ const Login = ({ onLogin }) => {
       const { data, error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
-          redirectTo: 'https://media-studio-admin.onrender.com',
+          // Ensure your redirect URL is correctly configured in Supabase
+          redirectTo: window.location.origin + '/dashboard', 
           queryParams: {
             access_type: 'offline',
             prompt: 'consent'
@@ -48,13 +65,14 @@ const Login = ({ onLogin }) => {
 
       if (error) throw error;
       
-      if (data) {
-        navigate('/dashboard');
-      }
+      // AuthContext will handle user state and navigation for Google login too
+      // if (data) {
+      //   navigate('/dashboard'); 
+      // }
 
     } catch (err) {
-      setError('Google sign in failed');
-      console.error('Login error:', err);
+      setError('Google sign in failed. Please try again.');
+      console.error('Google Login error:', err);
     } finally {
       setIsLoading(false);
     }
@@ -84,10 +102,10 @@ const Login = ({ onLogin }) => {
               <div className="relative">
                 <FiUser className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
                 <input
-                  type="text"
-                  value={username}
-                  onChange={(e) => setUsername(e.target.value)}
-                  placeholder="Username"
+                  type="text" // Changed back to text
+                  value={usernameInput}
+                  onChange={(e) => setUsernameInput(e.target.value)}
+                  placeholder="Username or Email" // Updated placeholder
                   className="w-full pl-10 pr-4 py-2.5 border border-[var(--border-color)] 
                            rounded-lg focus:outline-none focus:border-[var(--primary-color)]
                            text-gray-900 placeholder:text-gray-400"
